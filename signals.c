@@ -48,7 +48,7 @@ for (int i = 0; i < 5; i++)
     kill(_chlids[4],SIGTERM);
     sleep(1);
   
-    for (size_t i = 0; i < 5; i++)
+    for (size_t i = 0; i < 3; i++)
     {
         zombi = wait(&state);
         printf("process %d is dead\n",zombi);
