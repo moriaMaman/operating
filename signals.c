@@ -7,9 +7,9 @@
 
 int brothers[5];
 int befor=0;
+int parentPid;
 
 void sigCathcher(int sigNum){  
-   
     printf("PID %d caught one\n",getpid());
      if(befor>=0){
         kill(brothers[befor],SIGTERM);
@@ -19,20 +19,27 @@ void sigCathcher(int sigNum){
 
 int main() 
 { 
-    for(int i=0;i<5;i++) // loop will run n times (n=5) 
-    { 
-        int pid= fork();
-        // printf("PID %d\n",pid);
-        if(pid == 0) 
-        { 
-            // printf("PID %d\n",pid);
-            printf("PID %d is ready\n",getpid());
-            befor=i-1;
-            signal(SIGTERM,sigCathcher);
-            pause();
-        } 
-         brothers[i]=pid;
-    } 
+    parentPid=getpid();
+    int currentPid=getpid();
+        for (int i = 0; i < 5 && currentPid==parentPid; i++) // loop will run n times (n=5)
+        {
+                brothers[i]=fork();
+                 if (brothers[i] < 0)
+                 { //בדיקה האם התהליך נוצר כמו שצריך
+                perror("fork failed");
+                exit(1);
+                 }
+                   if (brothers[i] == 0)
+                 {
+                printf("PID %d is ready\n", getpid());
+                befor=i-1;
+                signal(SIGTERM,sigCathcher);
+                pause();
+                 }
+
+            currentPid=getpid();
+
+            }
 
     sleep(1);
     kill(brothers[4],SIGTERM);
@@ -42,4 +49,6 @@ int main()
         printf("process %d is dead\n",brothers[i]);
         kill(brothers[i],SIGKILL);
     }
+
+    return 0;
 } 
